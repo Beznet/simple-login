@@ -3,13 +3,10 @@ const assert = require('assert');
 const bcrypt = require('bcrypt');
 const v4 = require('uuid').v4;
 const jwt = require('jsonwebtoken');
-const jwtSecret = 'SUPERSECRETE20220';
 
 const saltRounds = 10;
-const url = 'mongodb://localhost:27017';
-const dbName = 'simple-login-db';
 
-const client = new MongoClient(url, {
+const client = new MongoClient(process.env.URL, {
   useNewUrlParser: true,
   useUnifiedTopology: true,
 });
@@ -51,7 +48,7 @@ export default (req, res) => {
     client.connect(function(err) {
       assert.equal(null, err);
       console.log('Connected to MongoDB server =>');
-      const db = client.db(dbName);
+      const db = client.db(process.env.DB_NAME);
       const email = req.body.email;
       const password = req.body.password;
 
@@ -67,7 +64,7 @@ export default (req, res) => {
               const user = creationResult.ops[0];
               const token = jwt.sign(
                 {userId: user.userId, email: user.email},
-                jwtSecret,
+                process.env.JWT_SECRET,
                 {
                   expiresIn: 3000, //50 minutes
                 },
